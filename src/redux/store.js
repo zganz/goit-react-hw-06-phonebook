@@ -1,4 +1,9 @@
-import { createAction, createReducer, configureStore } from '@reduxjs/toolkit';
+import {
+  createAction,
+  createReducer,
+  configureStore,
+  combineReducers,
+} from '@reduxjs/toolkit';
 import storage from 'redux-persist/lib/storage';
 import {
   persistReducer,
@@ -13,6 +18,7 @@ import {
 
 export const addContact = createAction('contact/add');
 export const deleteContact = createAction('contact/delete');
+export const setFilter = createAction('filter/set');
 
 const contacts = createReducer([], {
   [addContact]: (state, action) => [...state, action.payload],
@@ -20,17 +26,20 @@ const contacts = createReducer([], {
     state.filter(el => el.id !== action.payload),
 });
 
+const filter = createReducer('', {
+  [setFilter]: (state, action) => action.payload,
+});
+
 const persistConfig = {
   key: 'contacts',
   storage,
+  blacklist: ['filter'],
 };
-
-const persistedReducer = persistReducer(persistConfig, contacts);
+const reducers = combineReducers({ contacts, filter });
+const persistedReducer = persistReducer(persistConfig, reducers);
 
 export const store = configureStore({
-  reducer: {
-    contacts: persistedReducer,
-  },
+  reducer: persistedReducer,
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
       serializableCheck: {
