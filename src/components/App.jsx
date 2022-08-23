@@ -3,11 +3,16 @@ import { useState, useEffect } from 'react';
 import { PhonebookForm } from './PhonebookForm/PhonebookForm';
 import { ContactList } from './Contactlist/Contactlist';
 import { Filter } from './Filter/Filter';
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact, deleteContact } from '../redux/store';
 
 export const App = () => {
   const [contacts, setContacts] = useState(
     JSON.parse(window.localStorage.getItem('contacts')) ?? []
   );
+  const state1 = useSelector(state => state);
+  console.log(state1);
+  const dispatch = useDispatch();
 
   const [filter, setFilter] = useState('');
 
@@ -20,7 +25,7 @@ export const App = () => {
     if (contacts.some(contact => contact.name === name)) {
       return alert(`${name} is already in contacts`);
     }
-
+    dispatch(addContact(data));
     setContacts([...contacts, data]);
   };
 
@@ -37,6 +42,7 @@ export const App = () => {
   };
 
   const handleDelete = id => {
+    dispatch(deleteContact(id));
     const updContacts = contacts.filter(contact => contact.id !== id);
     setContacts(updContacts);
   };
